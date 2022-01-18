@@ -18,21 +18,37 @@ class Dom
 {
     private $doc;
     private $path;
-    private $client;
+    protected $client;
+    private $url;
 
-    public function __construct()
+    protected function __construct()
     {
         $this->doc = new DOMDocument;
         $this->client = new Client;
     }
 
-    public function getContent(string $Url)
+    public function setUrl(string $Url)
     {
-        $this->dom->loadHTML( $this->client->request('GET', $Url)->getBody()->getContents() );
-        $this->path = new DOMXpath($this->dom);
+        $this->url = $Url;
+
+        return $this;
+    }
+
+    public function getUrl()
+    {
+        return $this->url;
+    }
+
+    public function getContent()
+    {
+        @$this->doc->loadHTML($this->client->request('GET', $this->url)->getBody()->getContents());
+        $this->path = new DOMXpath($this->doc);
         
         return $this;
     }
 
-
+    public function getPath()
+    {
+        return $this->path;
+    }
 }
