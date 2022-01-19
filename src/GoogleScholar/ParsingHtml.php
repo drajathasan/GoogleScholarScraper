@@ -26,6 +26,15 @@ trait ParsingHtml
             $NumberCitation = $this->query('//a[@class="gsc_a_ac gs_ibl"]');
             $PublishYear = $this->query('//span[@class="gsc_a_h gsc_a_hc gs_ibl"]');
 
+            // We dont want to our data is null
+            // then unset it
+            if (is_null($Title))
+            {
+                unset($this->Data[$Index]);
+                continue;
+            }
+
+            // Making mutation data to make it so detail and readable
             $this->Data[$Index] = [
                 'title' => [
                     'link' => !is_null($Title) ? 'https://scholar.google.com/' . ltrim($Title[0]->getAttribute('href'), '/') : null,
@@ -41,6 +50,7 @@ trait ParsingHtml
             ];
         }
 
+        $this->Result['article'] = count($this->Data);
         $this->Result['data'] = $this->Data;
 
         return $this;
