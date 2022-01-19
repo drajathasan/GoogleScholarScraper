@@ -64,4 +64,9 @@ class Dom
     {
         return $this->doc;
     }
+
+    public static function getInstance()
+    {
+        return new Dom;
+    }
 }
