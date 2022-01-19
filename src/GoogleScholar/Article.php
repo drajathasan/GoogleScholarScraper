@@ -28,7 +28,7 @@ class Article extends Dom
     public function getAllTitle()
     {
         $this->getSimpleStatistic(['citation','article']);
-        $LoopRequest = ceil($this->Result['article'] / 10);
+        $LoopRequest = ceil($this->Result['article']??10 / 10);
 
         // First record
         $Detail = $this->getPath()->query('//tr[@class="gsc_a_tr"]');
@@ -57,7 +57,13 @@ class Article extends Dom
     {
         $Query = $this->getPath()->query("//td[@class='gsc_rsb_std']");
 
-        foreach ($Query??[] as $key => $value) {
+        if ($Query->length === 0)
+        {
+            foreach ($MapData as $Data) { $this->Result[$Data] = 0; }
+            return $this;
+        }
+
+        foreach ($Query as $key => $value) {
             if (in_array($key, [0,1])) 
                 $this->Result[$MapData[$key]] = strip_tags($value->ownerDocument->saveHTML($value));
         }
