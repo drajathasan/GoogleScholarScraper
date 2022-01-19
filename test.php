@@ -4,6 +4,7 @@
 
 
 use Drajathasan\Citationscraper\GoogleScholar\Article;
+use Drajathasan\Citationscraper\Output;
 
 require __DIR__ . '/vendor/autoload.php';
 
@@ -14,4 +15,4 @@ $Article
     ->getContent();
 
 
-var_dump($Article->getAllTitle());
+Output::debug($Article->getAllTitle()->getDetail()->getResult());

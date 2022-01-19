@@ -15,6 +15,10 @@ use Drajathasan\Citationscraper\{Dom,Output};
 class Article extends Dom
 {
     private static $Instance = null;
+    private array $Result = [];
+    private array $Data = [];
+
+    use ParsingHtml;
 
     private function __construct()
     {
@@ -23,45 +27,55 @@ class Article extends Dom
 
     public function getAllTitle()
     {
-        $Statistic = $this->getSimpleStatistic(['citation','article']);
-        $LoopRequest = ceil($Statistic['article'] / 10);
+        $this->getSimpleStatistic(['citation','article']);
+        $LoopRequest = ceil($this->Result['article'] / 10);
 
         // First record
         $Detail = $this->getPath()->query('//tr[@class="gsc_a_tr"]');
 
-        // foreach ($Title as $title) {
-        //     echo ($title->ownerDocument->saveHTML($title)) . '<br>';
-        // }
+        foreach ($Detail as $index => $details) {
+            $this->Data[] = $details->ownerDocument->saveHTML($details);
+        }
 
-        // $List = [];
-        // foreach ($Detail as $index => $details) {
-        //     $List[] = $details->ownerDocument->saveHTML($details);
-        // }
+        $OriginUrl = $this->getUrl();
+        for ($i=2; $i < $LoopRequest; $i++) { 
+            $this
+                ->setUrl($OriginUrl . '&cstart=' . ($i * 10) . '&pagesize=80')
+                ->getContent();
 
-        // echo '<pre>';
-        // var_dump($List);
-        // echo '</pre>';
-        // exit;
+            $NextPage = $this->getPath()->query('//tr[@class="gsc_a_tr"]');
 
-        // for ($i=2; $i < $LoopRequest; $i++) { 
-        //     # code...
-        // }
-        $response = $this->client->request('POST', $this->getUrl() . '&cstart=20&pagesize=80');
+            foreach ($NextPage as $index => $details) {
+                $this->Data[] = $details->ownerDocument->saveHTML($details);
+            }
+        }
 
-        var_dump($response->getBody()->getContents());
+        return $this;
     }
 
     public function getSimpleStatistic(array $MapData = ['Citation', 'Number of Articles'])
     {
         $Query = $this->getPath()->query("//td[@class='gsc_rsb_std']");
 
-        $Result = [];
         foreach ($Query??[] as $key => $value) {
             if (in_array($key, [0,1])) 
-                $Result[$MapData[$key]] = strip_tags($value->ownerDocument->saveHTML($value));
+                $this->Result[$MapData[$key]] = strip_tags($value->ownerDocument->saveHTML($value));
         }
 
-        return $Result;
+        return $this;
+    }
+
+    public function genUrlCitationByYear(string $Url, int $StartYear, int $EndYear = 0)
+    {
+        $StartYear = '&as_ylo=' . $StartYear;
+        $EndYear = $EndYear === 0 ? '' : '&as_yhi=' . $EndYear;
+
+        return $Url . $StartYear . $EndYear;
+    }
+
+    public function getResult()
+    {
+        return $this->Result;
     }
 
     public static function getInstance()

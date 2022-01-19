@@ -22,4 +22,11 @@ class Output
         echo $Output;
         exit;
     }
+
+    public static function debug($Content)
+    {
+        echo '<pre>';
+        var_dump($Content);
+        echo '</pre>';
+    }
 }

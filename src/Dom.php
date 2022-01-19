@@ -47,8 +47,21 @@ class Dom
         return $this;
     }
 
+    public function loadLocalContent(string $Content)
+    {
+        @$this->doc->loadHTML($Content);
+        $this->path = new DOMXpath($this->doc);
+        
+        return $this;
+    }
+
     public function getPath()
     {
         return $this->path;
+    }
+
+    public function getDoc()
+    {
+        return $this->doc;
     }
 }
