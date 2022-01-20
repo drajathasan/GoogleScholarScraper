@@ -21,11 +21,19 @@ class Dom
     private $path;
     protected $client;
     private $url;
+    private $error = '';
+    private $errorMessage = ' : failed';
+    private $debug = false;
 
     protected function __construct()
     {
         $this->doc = new DOMDocument;
         $this->client = new Client;
+    }
+
+    public function debug()
+    {
+        $this->debug = true;
     }
 
     public function setUrl(string $Url)
@@ -35,22 +43,42 @@ class Dom
         return $this;
     }
 
+    public function setAdditionalError(string $Message)
+    {
+        $this->errorMessage = $Message;
+    }
+
     public function getUrl()
     {
         return $this->url;
     }
 
-    public function getContent(string $failedMessage = '')
+    public function getContent()
     {
-        $HttpRequest = $this->client->request('GET', $this->url);
+        try {
 
-        if ($HttpRequest->getStatusCode() != 200) 
-            throw new \GuzzleHttp\Exception\ClientException('Error : ' . $HttpRequest->getStatusCode() . $failedMessage);
+            $HttpRequest = $this->client->request('GET', $this->url, ['http_errors' => $this->debug]);
 
-        @$this->doc->loadHTML($HttpRequest->getBody()->getContents());
-        $this->path = new DOMXpath($this->doc);
+            if ($HttpRequest->getStatusCode() == 200)
+            {
+                @$this->doc->loadHTML($HttpRequest->getBody()->getContents());
+                $this->path = new DOMXpath($this->doc);
+            }
+            else
+            {
+                throw new Exception('Error ' . $HttpRequest->getStatusCode() . ' : ' . $this->errorMessage);
+            }
+
+        } catch (Exception $e) {
+            $this->error = $e->getMessage();
+        }
         
         return $this;
+    }
+
+    public function getError()
+    {
+        return $this->error;
     }
 
     public function loadLocalContent(string $Content)

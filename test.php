@@ -9,10 +9,19 @@ use Drajathasan\Citationscraper\Output;
 require __DIR__ . '/vendor/autoload.php';
 
 $Article = Article::getInstance();
+// $Article->debug();
+$Article->setAdditionalError('mungkin gagal mengambil data dari scholar');
 
 $Article
-    ->setUrl('https://scholar.google.co.id/citations?hl=id&user=3sVKkHkAAAAJ&view_op=list_works&sortby=pubdate')
+    ->setUrl('https://scholar.google.co.id/citations?user=P17nqLgAAAAJ&view_op=list_works&sortby=pubdate')
     ->getContent();
 
 
-Output::debug($Article->getAllTitle()->getDetail()->getResult());
+if (empty($Article->getError()))
+{
+    Output::debug($Article->getAllTitle()->getDetail()->getResult());
+}
+else
+{
+    echo $Article->getError();
+}
