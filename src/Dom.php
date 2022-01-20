@@ -12,6 +12,7 @@ namespace Drajathasan\Citationscraper;
 
 use DOMDocument;
 use DOMXpath;
+use Exception;
 use GuzzleHttp\Client;
 
 class Dom
@@ -39,9 +40,14 @@ class Dom
         return $this->url;
     }
 
-    public function getContent()
+    public function getContent(string $failedMessage = '')
     {
-        @$this->doc->loadHTML($this->client->request('GET', $this->url)->getBody()->getContents());
+        $HttpRequest = $this->client->request('GET', $this->url);
+
+        if ($HttpRequest->getStatusCode() != 200) 
+            throw new Exception('Error : ' . $HttpRequest->getStatusCode() . $failedMessage);
+
+        @$this->doc->loadHTML($HttpRequest->getBody()->getContents());
         $this->path = new DOMXpath($this->doc);
         
         return $this;
