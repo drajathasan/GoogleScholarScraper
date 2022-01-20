@@ -45,7 +45,7 @@ class Dom
         $HttpRequest = $this->client->request('GET', $this->url);
 
         if ($HttpRequest->getStatusCode() != 200) 
-            throw new Exception('Error : ' . $HttpRequest->getStatusCode() . $failedMessage);
+            throw new \GuzzleHttp\Exception\ClientException('Error : ' . $HttpRequest->getStatusCode() . $failedMessage);
 
         @$this->doc->loadHTML($HttpRequest->getBody()->getContents());
         $this->path = new DOMXpath($this->doc);
